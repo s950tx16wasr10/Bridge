@@ -98,7 +98,7 @@ export async function readSngFiles(sngPath: string, opts: ReadSngOptions = {}): 
 
 /**
  * Reads only the header of a .sng archive (file listing + metadata) without
- * draining the file data section — listing a video-bearing archive costs a few
+ * draining the file data section. Listing a video-bearing archive costs a few
  * KB of I/O instead of the whole file.
  */
 export function readSngHeader(sngPath: string): Promise<SngHeader> {
@@ -130,7 +130,7 @@ export function readSngHeader(sngPath: string): Promise<SngHeader> {
  * single small file costs its own size in I/O rather than the whole archive.
  * Falls back to the sequential reader when the archive's offsets don't match
  * the contiguous layout (parse-sng ignores offsets, so such files exist only
- * from nonconforming packers — but they would parse fine sequentially).
+ * from nonconforming packers, but they would parse fine sequentially).
  */
 export async function readSngEntries(
 	sngPath: string,
@@ -196,7 +196,7 @@ const WINDOWS_ILLEGAL_CHARS = /[<>:"|?*\x00-\x1f]/
  * Rejects entry names that Windows would silently mangle: on NTFS a trailing dot
  * or space is stripped and lookups are case-insensitive, so such entries would
  * collide or rename themselves in the workspace and the corruption would then be
- * repacked into the archive. Failing loudly is strictly better than silent loss.
+ * repacked into the archive.
  */
 function assertSafeEntryName(fileName: string, normalized: string): void {
 	for (const segment of normalized.split('/')) {

@@ -126,8 +126,8 @@ export class DiscoverComponent {
 	artistStatusTip(row: MatchRow): string {
 		switch (row.artistStatus) {
 			case 'empty': return 'Artist not found on Enchor'
-			case 'error': return 'Enchor lookup failed — will retry on the next sync'
-			case 'pending': return 'Not checked yet — sync to look this artist up'
+			case 'error': return 'Enchor lookup failed. Retries on the next sync.'
+			case 'pending': return 'Not checked yet. Run a sync to look this artist up.'
 			default: return 'No charts for this artist'
 		}
 	}

@@ -150,8 +150,8 @@ class LastfmService extends EventEmitter<LastfmServiceEvents> {
 			}
 		}
 
-		// Phase: match — ALWAYS runs over every bucket of the current track set,
-		// so cancel/quit/new-tracks-for-cached-artists self-heal here
+		// The match phase always runs over every bucket of the current track set,
+		// so cancelled or crashed runs and new tracks for cached artists self-heal here
 		this.progress({ phase: 'match', current: 0, total: 1, message: 'Matching tracks against cached charts...' })
 		const matchedCount = this.rebuildAllMatches(allTracks)
 
@@ -160,7 +160,7 @@ class LastfmService extends EventEmitter<LastfmServiceEvents> {
 			phase: 'done',
 			current: 1,
 			total: 1,
-			message: this.shouldCancel ? 'Sync cancelled — partial results saved' : 'Sync complete',
+			message: this.shouldCancel ? 'Sync cancelled; partial results saved' : 'Sync complete',
 			summary: {
 				trackCount: allTracks.length,
 				matchedCount,

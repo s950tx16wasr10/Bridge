@@ -2,7 +2,7 @@ import { SngHeader } from 'parse-sng'
 
 /**
  * Module-local types for the .sng read/write support module.
- * No renderer exposure — this module adds zero IPC channels, so src-shared is the wrong home.
+ * The module adds no IPC channels, so these types are not in src-shared.
  */
 
 export interface SngPackEntry {

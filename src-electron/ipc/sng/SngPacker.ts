@@ -59,11 +59,9 @@ export function isExcludedFromSngPack(normalizedName: string): boolean {
 }
 
 /**
- * Enforces the §3.8 metadata sanitization policy.
- *
- * Keys containing `=`, `;`, or newlines are hard-rejected (throws, naming the key).
- * Values have newlines stripped — the one thing that breaks the ini round trip —
- * and every such modification is reported, never silent. Empty keys/values are
+ * Keys containing `=`, `;`, or newlines are rejected (throws, naming the key).
+ * Newlines break the generated song.ini, so they are stripped from values and
+ * every such modification is reported to the caller. Empty keys and values are
  * skipped (parse-sng drops them at read time regardless).
  */
 export function sanitizeSngMetadata(metadata: Map<string, string>): { metadata: Map<string, string>; modifications: string[] } {
@@ -91,7 +89,7 @@ export function sanitizeSngMetadata(metadata: Map<string, string>): { metadata: 
  * `contentsIndex` values are absolute file offsets. Entry order is preserved; file
  * contents must be written contiguously in the same order, without padding.
  *
- * `entries` and `metadata` are packed as given — apply `normalizeSngFilename`,
+ * `entries` and `metadata` are packed as given; apply `normalizeSngFilename`,
  * `isExcludedFromSngPack`, and `sanitizeSngMetadata` first (packSngToFile does).
  */
 export function buildSngHeader(entries: Array<{ name: string; size: number }>, metadata: Map<string, string>, xorMask: Buffer): Buffer {

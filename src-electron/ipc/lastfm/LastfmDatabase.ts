@@ -227,7 +227,7 @@ class LastfmDatabase {
 	/**
 	 * Authoritatively replaces one artist bucket: upserts the fresh charts, replaces
 	 * the bucket's memberships, garbage-collects charts no longer referenced by any
-	 * bucket, and writes the cache row — all in one transaction.
+	 * bucket, and writes the cache row, all in one transaction.
 	 */
 	replaceArtistBucket(cache: ArtistCacheRow, charts: StoredChart[]): void {
 		const replace = this.db.transaction(() => {

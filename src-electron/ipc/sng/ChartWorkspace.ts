@@ -177,7 +177,8 @@ class SngWorkspace implements ChartWorkspace {
 		// 0.5. Scan fence: wait for a running full library scan (bounded)
 		await waitForScanIdle()
 
-		// 1. VALIDATE (differential against the open() baseline; scanChartFolder never throws — read fields)
+		// 1. Validate differentially against the open() baseline. scanChartFolder
+		// reports problems in its return value rather than throwing.
 		const current = await scanWorkspaceDir(this.dir)
 		assertNoRegression(this.baseline, current)
 
@@ -413,9 +414,9 @@ async function buildPackEntries(dir: string): Promise<SngPackEntry[]> {
 }
 
 /**
- * VERIFY step: re-parse the packed archive with parse-sng, streaming, and compare
- * per-file md5 + the metadata map against what was packed from ws.dir. A mismatch
- * is a packer bug — the commit is refused and the original stays untouched.
+ * Re-parses the packed archive with parse-sng and compares per-file md5s and the
+ * metadata map against what was packed from ws.dir. A mismatch indicates a packer
+ * bug: the commit is refused and the original archive stays untouched.
  */
 async function verifyPackedArchive(packedPath: string, expectedFiles: SngManifest, expectedMetadata: Map<string, string>): Promise<void> {
 	const actualFiles: SngManifest = new Map()

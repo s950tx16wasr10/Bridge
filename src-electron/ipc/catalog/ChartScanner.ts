@@ -292,7 +292,6 @@ class ChartScanner extends EventEmitter<ScannerEvents> {
 			? await this.getFilesFromSng(chartFolder.path)
 			: await this.getFilesFromFolder(chartFolder)
 
-		// Use scan-chart library for robust parsing
 		const scannedChart = scanChartFolder(files)
 
 		// Detect additional assets not covered by scan-chart

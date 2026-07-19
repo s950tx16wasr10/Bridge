@@ -5,43 +5,44 @@
 <img align="center" src="./src-angular/assets/images/example.png"/>
 <hr>
 
-**Bridge** is a desktop application that allows you to search for and download charts that can be played in  games like Clone Hero, YARG, etc...
+**Bridge** is a desktop app for searching, downloading, and managing charts for rhythm
+games such as Clone Hero and YARG. It is the desktop client for
+[Chorus Encore](https://www.enchor.us/), based on Geomitron's Bridge.
 
-This is the desktop version of [Chorus Encore](https://www.enchor.us/).
+## Installation
 
-## Setup
-
-Head over to the [Releases](https://github.com/Geomitron/Bridge/releases) page to download the install wizard. (Windows 10/11, Mac, and Linux versions are available)
+Download the installer from the [Releases](https://github.com/s950tx16wasr10/Bridge/releases)
+page (Windows). The app checks for updates on startup.
 
 ## Features
 
-- ✅ Find all charts that can be found on Chorus Encore.
-- ✅ Download any chart directly into your chart library as a chart folder or `.sng` file.
-- ✅ Multi-select songs to add to the download queue.
-- ✅ Cancel and retry downloads.
-- ✅ In-app update checking and downloading.
-- ✅ A variety of themes.
-- ✅ Advanced song search.
-- ✅ Chart issue scanner (for people making charts).
+- Search every chart on Chorus Encore, with advanced per-field filters.
+- Download charts as chart folders or `.sng` files, with a queue, multi-select,
+  cancel, and retry.
+- Library manager: scans local chart folders into a catalog, with search, filters,
+  duplicate detection, and metadata editing.
+- Discover: matches a Last.fm listening history against Chorus Encore and lists
+  charts for the songs played most, with in-library detection and one-click download.
+  Requires a Last.fm username and a free [API key](https://www.last.fm/api).
+- Chart tools: lyrics injection from LRCLIB, album art fetching, background
+  generation, and video background download. All tools work on both chart folders
+  and `.sng` archives.
+- Chart issue scanner for charters.
+- Multiple UI themes.
 
-### What's new in v3.4.0
+## Development
 
-- Add new "Quality Reviewed" filter for drum charts
-
-### Development
-
-Built using Node.js, Angular, and Electron.
-
-Learn how to install Node.js [here](https://nodejs.dev/en/download/)
-
-After installing Node.js and cloning the repository, install dependencies and run development with:
+Requires Node.js 22.
 
 ```
-$ npm install && npm start
+npm install
+npm start
 ```
 
-### Socials
+`npm test` runs the unit tests (vitest). `npm run build:windows` builds the installer.
 
-To discuss the project and make suggestions, please join the [Discord](https://discord.gg/cqaUXGm)
+## Community
 
-To help me pay for the server costs, please check out the [Patreon](https://www.patreon.com/ChorusEncore701)
+Chorus Encore hosts the chart database this app depends on. To discuss it or help with
+its server costs, see the [Discord](https://discord.gg/cqaUXGm) and
+[Patreon](https://www.patreon.com/ChorusEncore701).
