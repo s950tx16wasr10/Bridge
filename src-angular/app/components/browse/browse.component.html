@@ -1,0 +1,8 @@
+<app-search-bar />
+<div class="flex flex-1 overflow-hidden">
+	<app-result-table #resultTable (rowClicked)="chartSidebar.onRowClicked($event)" />
+	<div #chartSidebarDiv>
+		<app-chart-sidebar #chartSidebar />
+	</div>
+</div>
+<app-status-bar />

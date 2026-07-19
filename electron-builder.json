@@ -1,0 +1,44 @@
+{
+	"productName": "Bridge",
+	"directories": {
+		"output": "release/"
+	},
+	"files": [
+		"dist/**/*"
+	],
+	"publish": {
+		"provider": "github",
+		"releaseType": "release"
+	},
+	"nsis": {
+		"oneClick": false,
+		"allowToChangeInstallationDirectory": true,
+		"deleteAppDataOnUninstall": true,
+		"shortcutName": "Bridge"
+	},
+	"win": {
+		"icon": "dist/angular/browser/assets/images/system/icons/win/icon.ico",
+		"compression": "store",
+		"artifactName": "Bridge-Setup-${version}.${ext}"
+	},
+	"mac": {
+		"category": "public.app-category.utilities",
+		"target": [
+			{
+				"target": "dmg",
+				"arch": [
+					"universal"
+				]
+			}
+		],
+		"icon": "dist/angular/browser/assets/images/system/icons/mac/icon.icns"
+	},
+	"linux": {
+		"compression": "maximum",
+		"target": [
+			"AppImage",
+			"flatpak"
+		],
+		"category": "utility"
+	}
+}

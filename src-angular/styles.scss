@@ -1,0 +1,174 @@
+/* Tailwind CSS 4 - CSS-first configuration */
+@import 'tailwindcss' source('./app');
+
+/* Additional source directories to scan */
+@source './app/**/*.ts';
+@source './app/**/*.html';
+
+/* Theme customization */
+@theme {
+	--breakpoint-3xl: 1900px;
+}
+
+/* Tailwind plugins */
+@plugin "tailwind-scrollbar";
+
+/* DaisyUI plugin with themes */
+@plugin "daisyui" {
+	themes: dark, business, dim, night, sunset, synthwave, aqua, emerald, lemonade, nord, valentine, winter;
+}
+
+/* DaisyUI custom themes */
+@layer base {
+	[data-theme="aren"] {
+		--color-base-100: #111111;
+		--color-base-200: #0d0d0d;
+		--color-base-300: #080808;
+		--color-base-content: #ffffff;
+		--color-primary: #00ffff;
+		--color-primary-content: #001616;
+		--color-secondary: #ff1010;
+		--color-secondary-content: #ffffff;
+		--color-accent: #999999;
+		--color-accent-content: #0a0a0a;
+		--color-neutral: #606666;
+		--color-neutral-content: #ffffff;
+		--color-info: #666666;
+		--color-info-content: #ffffff;
+		--color-success: #aeffff;
+		--color-success-content: #0a1616;
+		--color-warning: #ff5555;
+		--color-warning-content: #ffffff;
+		--color-error: #ff1111;
+		--color-error-content: #ffffff;
+	}
+	[data-theme="froogs"] {
+		--color-base-100: #280044;
+		--color-base-200: #200038;
+		--color-base-300: #18002c;
+		--color-base-content: #ffffff;
+		--color-primary: #22d3ee;
+		--color-primary-content: #021314;
+		--color-secondary: #e879f9;
+		--color-secondary-content: #140616;
+		--color-accent: #818cf8;
+		--color-accent-content: #060816;
+		--color-neutral: #312e81;
+		--color-neutral-content: #d4d3e6;
+		--color-info: #7e22ce;
+		--color-info-content: #e5d4f4;
+		--color-success: #c026d3;
+		--color-success-content: #f4d5f6;
+		--color-warning: #fef08a;
+		--color-warning-content: #161505;
+		--color-error: #111827;
+		--color-error-content: #cccdd0;
+	}
+}
+
+/* Other imports */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* Global styles */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button,
+input[type='number'] {
+	-webkit-appearance: none;
+	margin: 0;
+	-moz-appearance: textfield !important;
+}
+
+* {
+	user-select: none;
+	-webkit-user-drag: none;
+}
+
+/* Dropdown animation fixes - fade in/out smoothly */
+.dropdown {
+	/* Ensure dropdown creates a positioning context */
+	position: relative;
+}
+
+.dropdown .dropdown-content {
+	opacity: 1;
+	transform: scale(1);
+	transform-origin: top;
+	/* Ensure dropdowns appear above other content */
+	z-index: 50;
+	/* When opening: fade and scale in */
+	transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.dropdown:not(:hover):not(:focus):not(:focus-within):not(.dropdown-open) .dropdown-content {
+	opacity: 0;
+	transform: scale(0.95);
+	pointer-events: none;
+	/* When closing: fade and scale out */
+	transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+/* For dropdowns that open upward */
+.dropdown-top .dropdown-content {
+	transform-origin: bottom;
+}
+
+/* For dropdowns on the right side */
+.dropdown-end .dropdown-content {
+	transform-origin: top right;
+}
+
+.dropdown-top.dropdown-end .dropdown-content {
+	transform-origin: bottom right;
+}
+
+/* Collapse animation - ensure smooth height transition */
+.collapse {
+	transition: grid-template-rows 300ms ease-out;
+}
+
+/* For collapses that need dropdowns to overflow (using overflow-visible class) */
+.collapse.overflow-visible {
+	overflow: visible !important;
+}
+
+/* Ensure collapse-content clips during animation */
+.collapse-content {
+	overflow: hidden !important;
+	min-height: 0;
+}
+
+/* Inner wrapper for proper clipping during slide animation */
+.collapse.overflow-visible .collapse-content {
+	/* The collapse-content grid cell animates, content inside is clipped */
+}
+
+/* Chart preview player fullscreen styling */
+chart-preview-player:fullscreen {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background-color: black !important;
+}
+
+chart-preview-player:fullscreen canvas {
+	max-width: 100vw !important;
+	max-height: 100vh !important;
+	width: auto !important;
+	height: auto !important;
+	object-fit: contain !important;
+}
+
+/* "Already in Library" row indicator for browse results */
+.in-library-row {
+	opacity: 0.55;
+}
+
+/* Apply left border to first cell in the row */
+.in-library-row td:first-child {
+	border-left: 3px solid oklch(var(--color-success));
+}
+
+/* Restore opacity on hover for better readability */
+.in-library-row:hover {
+	opacity: 0.8;
+}

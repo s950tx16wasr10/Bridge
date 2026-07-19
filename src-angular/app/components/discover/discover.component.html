@@ -1,0 +1,342 @@
+<div class="flex-1 flex flex-col overflow-hidden">
+	@if (!isConfigured()) {
+		<!-- State 1: not configured -->
+		<div class="flex-1 flex items-center justify-center p-8 overflow-y-auto">
+			<div class="card bg-base-200 shadow-md max-w-xl">
+				<div class="card-body items-center text-center gap-4">
+					<i class="bi bi-stars text-5xl text-primary"></i>
+					<h2 class="card-title text-2xl">Discover charts from your Last.fm history</h2>
+					<p class="text-base-content/70">
+						Bridge can match your most-played and loved Last.fm tracks against the charts on Chorus Encore, rank them by how much you
+						listen to them, flag the ones you already own, and download the rest with one click.
+					</p>
+					<p class="text-base-content/70">To get started, add your Last.fm username and a free API key in Settings.</p>
+					<div class="flex gap-2">
+						<a class="btn btn-primary" routerLink="/settings">Open Settings</a>
+						<button class="btn btn-neutral" (click)="openUrl('https://www.last.fm/api/account/create')">Get an API key</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	} @else {
+		<!-- Controls -->
+		<div class="flex flex-wrap items-end gap-2 py-2 px-3 bg-base-100 border-b border-base-200">
+			<label class="form-control">
+				<div class="label py-0"><span class="label-text text-xs">Source</span></div>
+				<select class="select select-bordered select-sm" [ngModel]="lastfmService.source()" (ngModelChange)="lastfmService.setSource($event)">
+					@for (source of sources; track source.value) {
+						<option [ngValue]="source.value">{{ source.label }}</option>
+					}
+				</select>
+			</label>
+			<label class="form-control">
+				<div class="label py-0"><span class="label-text text-xs">Sync songs played at least (next sync)</span></div>
+				<select class="select select-bordered select-sm" [ngModel]="lastfmService.syncMinPlays()" (ngModelChange)="lastfmService.setSyncMinPlays($event)">
+					@for (minPlays of syncMinPlaysOptions; track minPlays) {
+						<option [ngValue]="minPlays">{{ minPlays }}× or more</option>
+					}
+				</select>
+			</label>
+			<label class="form-control">
+				<div class="label py-0"><span class="label-text text-xs">Instrument</span></div>
+				<select class="select select-bordered select-sm" [ngModel]="lastfmService.instrument()" (ngModelChange)="lastfmService.setInstrument($event)">
+					<option [ngValue]="null">{{ instrumentDisplay(null) }}</option>
+					@for (instrument of instruments; track $index) {
+						<option [ngValue]="instrument">{{ instrumentDisplay(instrument) }}</option>
+					}
+				</select>
+			</label>
+			<label class="form-control">
+				<div class="label py-0"><span class="label-text text-xs">Min plays</span></div>
+				<input
+					type="number"
+					min="0"
+					placeholder="Any"
+					class="input input-bordered input-sm w-20"
+					[ngModel]="lastfmService.minPlaycount()"
+					(ngModelChange)="onMinPlaycountChange($event)" />
+			</label>
+			<label class="form-control">
+				<div class="label py-0"><span class="label-text text-xs">Filter</span></div>
+				<label class="input input-bordered input-sm flex items-center gap-2 w-48">
+					<input
+						type="text"
+						class="grow"
+						placeholder="Track or artist..."
+						[ngModel]="lastfmService.textFilter()"
+						(ngModelChange)="lastfmService.setTextFilter($event)" />
+					<i class="bi bi-search opacity-70"></i>
+				</label>
+			</label>
+			<label class="label cursor-pointer gap-2 pb-1">
+				<input
+					type="checkbox"
+					class="checkbox checkbox-primary checkbox-sm"
+					[ngModel]="lastfmService.hideOwned()"
+					(ngModelChange)="lastfmService.setHideOwned($event)" />
+				<span class="label-text">Hide owned</span>
+			</label>
+			<label class="label cursor-pointer gap-2 pb-1">
+				<input
+					type="checkbox"
+					class="checkbox checkbox-primary checkbox-sm"
+					[ngModel]="lastfmService.hideMissingArtists()"
+					(ngModelChange)="lastfmService.setHideMissingArtists($event)" />
+				<span class="label-text">Hide artists not on Enchor</span>
+			</label>
+			<label class="label cursor-pointer gap-2 pb-1">
+				<input
+					type="checkbox"
+					class="checkbox checkbox-primary checkbox-sm"
+					[ngModel]="lastfmService.hideUnmatchedSongs()"
+					(ngModelChange)="lastfmService.setHideUnmatchedSongs($event)" />
+				<span class="label-text">Hide uncharted songs</span>
+			</label>
+			<div class="flex-1"></div>
+			<button class="btn btn-primary btn-sm" [disabled]="isSyncing()" (click)="lastfmService.startSync()">
+				<i class="bi bi-arrow-repeat"></i>
+				Sync
+			</button>
+		</div>
+
+		<!-- State 2: syncing -->
+		@if (isSyncing()) {
+			<div class="flex items-center gap-3 py-2 px-3 bg-base-100 border-b border-base-200">
+				<progress
+					class="progress progress-primary flex-1"
+					[value]="lastfmService.syncProgress()!.current"
+					[max]="lastfmService.syncProgress()!.total || 1"></progress>
+				<span class="text-sm whitespace-nowrap">{{ lastfmService.syncProgress()!.message }}</span>
+				<button class="btn btn-neutral btn-sm" (click)="lastfmService.cancelSync()">Cancel</button>
+			</div>
+		}
+		@if (syncError(); as error) {
+			<div class="alert alert-error rounded-none py-2">
+				<i class="bi bi-exclamation-triangle"></i>
+				<span>{{ error }}</span>
+			</div>
+		}
+
+		<!-- State 3: results table -->
+		<div class="flex-1 overflow-y-auto scrollbar scrollbar-w-2 scrollbar-h-2 scrollbar-track-base-300 scrollbar-thumb-neutral scrollbar-thumb-rounded-full">
+			@if (matches(); as result) {
+				@if (result.totalTracks === 0 && !isSyncing()) {
+					<div class="flex flex-col items-center justify-center gap-4 py-16">
+						<i class="bi bi-cloud-arrow-down text-4xl text-base-content/50"></i>
+						<p class="text-base-content/70">Not synced yet for this period</p>
+						<button class="btn btn-primary" (click)="lastfmService.startSync()">Sync</button>
+					</div>
+				} @else {
+					<table class="table table-zebra table-pin-rows" [class.table-xs]="settingsService.isCompactTable">
+						<thead>
+							<tr>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('track')">
+									Track
+									@if (sortColumn() === 'track') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('artist')">
+									Artist
+									@if (sortColumn() === 'artist') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('plays')">
+									Plays
+									@if (sortColumn() === 'plays') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('match')">
+									Match
+									@if (sortColumn() === 'match') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('charts')">
+									Charts
+									@if (sortColumn() === 'charts') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('artistCharts')">
+									Artist Charts
+									@if (sortColumn() === 'artistCharts') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th [ngClass]="sortDirection()" class="cursor-pointer" (click)="onColClicked('inLibrary')">
+									In Library
+									@if (sortColumn() === 'inLibrary') {
+										<i class="bi bi-caret-{{ sortDirection() === 'asc' ? 'down' : 'up' }}-fill"></i>
+									}
+								</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (row of result.rows; track row.trackId) {
+								<tr>
+									<td>
+										<div class="flex items-center gap-3">
+											@if (rowAlbumArtMd5(row); as artMd5) {
+												<img class="w-10 h-10 rounded" src="https://files.enchor.us/{{ artMd5 }}.jpg" alt="Album art" />
+											} @else {
+												<div class="skeleton w-10 h-10 rounded shrink-0"></div>
+											}
+											<span>{{ row.name }}</span>
+										</div>
+									</td>
+									<td>{{ row.artist }}</td>
+									<td class="whitespace-nowrap">
+										@if (lastfmService.source() === 'loved') {
+											<i class="bi bi-heart-fill text-error"></i>
+											@if (row.lovedAt !== null) {
+												<span class="ml-1">{{ row.lovedAt * 1000 | date: 'yyyy-MM-dd' }}</span>
+											}
+										} @else {
+											{{ row.playcount }}
+											@if (row.isLoved) {
+												<i class="bi bi-heart-fill text-error ml-1" title="Loved on Last.fm"></i>
+											}
+										}
+									</td>
+									<td>
+										@switch (row.matchType) {
+											@case ('exact') {
+												<span class="badge badge-success">Exact</span>
+											}
+											@case ('fuzzy') {
+												<div class="tooltip" [attr.data-tip]="bestChart(row)?.name">
+													<span class="badge badge-info">Fuzzy</span>
+												</div>
+											}
+											@case ('variant') {
+												<span class="badge badge-warning whitespace-nowrap">Different version</span>
+											}
+											@default {
+												<span class="opacity-50">—</span>
+											}
+										}
+									</td>
+									<td class="whitespace-nowrap">
+										@if (visibleCharts(row).length > 0) {
+											<button class="btn btn-ghost btn-xs gap-1" (click)="toggleExpanded(row.trackId)">
+												{{ visibleCharts(row).length }}
+												<i class="bi" [ngClass]="expandedTracks().has(row.trackId) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+											</button>
+										} @else {
+											<span class="opacity-50">0</span>
+										}
+									</td>
+									<td class="whitespace-nowrap">
+										@if (row.artistChartCount > 0) {
+											{{ row.artistChartCount }}
+										} @else {
+											<div class="tooltip" [attr.data-tip]="artistStatusTip(row)">
+												<span class="opacity-50">0</span>
+											</div>
+										}
+									</td>
+									<td>
+										@if (row.inLibrary) {
+											<span
+												class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-success/25 text-success"
+												title="Already in your library">
+												<i class="bi bi-check-circle-fill"></i>
+												In Library
+											</span>
+										} @else if (isDownloaded(row)) {
+											<span
+												class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-success/25 text-success"
+												title="Downloaded this session (rescan your library to update)">
+												<i class="bi bi-download"></i>
+												Downloaded
+											</span>
+										}
+									</td>
+									<td class="whitespace-nowrap">
+										@if (visibleCharts(row).length > 0) {
+											<button class="btn btn-primary btn-xs mr-1" (click)="onDownloadRow(row)">Download</button>
+										}
+										<button class="btn btn-neutral btn-xs" (click)="openInBrowse(row)">Open in Browse</button>
+									</td>
+								</tr>
+								@if (expandedTracks().has(row.trackId)) {
+									@for (chart of visibleCharts(row); track chart.chartId) {
+										<tr class="!bg-base-200/50">
+											<td colspan="8">
+												<div class="flex flex-wrap items-center gap-3 pl-12">
+													<span class="font-medium">{{ chart.charter || 'Unknown Charter' }}</span>
+													@if (chart.name !== null && chart.name !== row.name) {
+														<span class="italic opacity-70">{{ chart.name }}</span>
+													}
+													@for (badge of instrumentBadges(chart); track $index) {
+														<span class="badge badge-neutral badge-sm whitespace-nowrap">
+															{{ badge.label }}{{ badge.diff !== null ? ' ' + badge.diff : '' }}
+														</span>
+													}
+													@if (chart.modifiedTime) {
+														<span class="text-xs opacity-70">{{ chart.modifiedTime | date: 'yyyy-MM-dd' }}</span>
+													}
+													@switch (chart.matchType) {
+														@case ('exact') {
+															<span class="badge badge-success badge-sm">Exact</span>
+														}
+														@case ('fuzzy') {
+															<span class="badge badge-info badge-sm">Fuzzy</span>
+														}
+														@case ('variant') {
+															<span class="badge badge-warning badge-sm whitespace-nowrap">Different version</span>
+														}
+													}
+													<div class="flex-1"></div>
+													@if (downloadedMd5s().has(chart.md5)) {
+														<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-success/25 text-success">
+															<i class="bi bi-download"></i>
+															Downloaded
+														</span>
+													}
+													<button class="btn btn-primary btn-xs" (click)="downloadChart(chart)">Download</button>
+												</div>
+											</td>
+										</tr>
+									}
+								}
+							}
+						</tbody>
+					</table>
+				}
+			}
+		</div>
+
+		<!-- Attribution footer -->
+		<div class="flex justify-between items-center px-3 py-1 bg-base-100 border-t border-base-200 text-xs text-base-content/70">
+			<span>
+				@if (matches(); as result) {
+					{{ result.matchedTracks }} of {{ result.totalTracks }} tracks matched
+					@if (result.lastSyncAt) {
+						— last synced {{ result.lastSyncAt | date: 'yyyy-MM-dd HH:mm' }}
+					}
+				}
+			</span>
+			<a class="link link-hover" (click)="openUrl('https://www.last.fm/user/' + settingsService.lastfmUsername)">Powered by Last.fm</a>
+		</div>
+
+		<dialog #libraryDirectoryErrorModal class="modal">
+			<div class="modal-box bg-base-100 text-base-content flex flex-col gap-2">
+				<form method="dialog">
+					<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+						<i class="bi bi-x-lg text-lg"></i>
+					</button>
+				</form>
+				<h3 class="text-lg font-bold">Chart can't be downloaded yet</h3>
+				<p class="py-4">Please select a chart library directory in the Settings tab before downloading.</p>
+			</div>
+			<form method="dialog" class="modal-backdrop">
+				<button>close</button>
+			</form>
+		</dialog>
+	}
+</div>

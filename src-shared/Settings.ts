@@ -1,0 +1,76 @@
+import { Difficulty, Instrument } from 'scan-chart'
+
+import { ThemeColors } from './interfaces/theme.interface'
+
+export const themes = [
+	'business',
+	'dark',
+	'dim',
+	'night',
+	'sunset',
+	'synthwave',
+	'aqua',
+	'emerald',
+	'lemonade',
+	'nord',
+	'valentine',
+	'winter',
+	'aren',
+	'froogs',
+] as const
+
+/**
+ * Represents a library folder entry.
+ */
+export interface LibraryFolder {
+	path: string       // The path to the library folder
+	isDefault: boolean // Whether this is the default folder for downloads
+}
+
+/**
+ * Represents Bridge's user settings.
+ */
+export interface Settings {
+	downloadVideos: boolean                   // If background videos should be downloaded
+	theme: typeof themes[number]              // The name of the currently enabled UI theme
+	customTheme: ThemeColors | null           // The colors of a custom theme
+	customThemePath: string | null            // The last folder that contained the `customTheme`'s file
+	libraryPath: string | undefined           // DEPRECATED: Kept for migration, use libraryFolders instead
+	libraryFolders: LibraryFolder[]           // List of library folders, one should be marked as default
+	issueScanPath: string | undefined         // The path to use when scanning for issues
+	spreadsheetOutputPath: string | undefined // The path to use when saving generated issues
+	chartFolderName: string                   // The relative path and name of the chart that is saved in the default library folder
+	isSng: boolean                            // If the chart should be downloaded as a .sng file or as a chart folder
+	isCompactTable: boolean                   // If the search result table should have reduced padding
+	visibleColumns: string[]                  // The search result columns to include
+	zoomFactor: number                        // How much the display should be zoomed
+	instrument: Instrument | null             // The instrument selected by default, or `null` for "Any Instrument"
+	difficulty: Difficulty | null             // The difficulty selected by default, or `null` for "Any Difficulty"
+	volume: number                            // The volume of the chart preview (0-100)
+	lastfmUsername: string                    // The Last.fm username used by the Discover tab
+	lastfmApiKey: string                      // The Last.fm API key used by the Discover tab
+}
+
+/**
+ * Bridge's default user settings.
+ */
+export const defaultSettings: Settings = {
+	downloadVideos: true,
+	theme: 'dark',
+	customTheme: null,
+	customThemePath: null,
+	libraryPath: undefined,
+	libraryFolders: [],
+	issueScanPath: undefined,
+	spreadsheetOutputPath: undefined,
+	chartFolderName: '{artist} - {name} ({charter})',
+	isSng: false,
+	isCompactTable: false,
+	visibleColumns: ['artist', 'album', 'genre', 'year'],
+	zoomFactor: 1,
+	instrument: 'guitar',
+	difficulty: null,
+	volume: 50,
+	lastfmUsername: '',
+	lastfmApiKey: '',
+}

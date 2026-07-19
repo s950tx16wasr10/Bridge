@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "files": [
+    "./main.ts",
+		"./preload.ts"
+  ],
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "./**/*.test.ts",
+    "./ipc/sng/sngTestUtils.ts"
+  ],
+  "compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+    "outDir": "../dist/electron"
+  }
+}
